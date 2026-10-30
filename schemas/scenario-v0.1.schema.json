@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synthetic Delegation Conformance Scenario v0.1",
+  "description": "Pre-sprint prototype; not a security protocol.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "root_principal",
+    "root_scope",
+    "delegations",
+    "request"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "scenario_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root_principal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root_scope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "delegations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "parent",
+          "child",
+          "scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parent": {
+            "type": "string",
+            "minLength": 1
+          },
+          "child": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "request": {
+      "type": "object",
+      "required": [
+        "principal",
+        "permission",
+        "delegation_path"
+      ],
+      "properties": {
+        "principal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "permission": {
+          "type": "string",
+          "minLength": 1
+        },
+        "delegation_path": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "observed_decision": {
+      "enum": [
+        "allow",
+        "deny"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
