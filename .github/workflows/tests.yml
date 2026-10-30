@@ -1,0 +1,25 @@
+name: Offline conformance tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run standard-library tests
+        run: python -m unittest discover -s tests -v
+      - name: Verify CLI success
+        run: python -m delegation_conformance examples/allow.json
+      - name: Verify CLI detects violation
+        run: |
+          set +e
+          python -m delegation_conformance examples/violation.json
+          status=$?
+          test "$status" -eq 1
