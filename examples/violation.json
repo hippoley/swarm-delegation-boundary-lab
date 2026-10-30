@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1",
+  "scenario_id": "unauthorized-write",
+  "root_principal": "root",
+  "root_scope": [
+    "read"
+  ],
+  "delegations": [
+    {
+      "id": "d1",
+      "parent": "root",
+      "child": "worker",
+      "scope": [
+        "read",
+        "write"
+      ]
+    }
+  ],
+  "request": {
+    "principal": "worker",
+    "permission": "write",
+    "delegation_path": [
+      "d1"
+    ]
+  },
+  "observed_decision": "allow"
+}
