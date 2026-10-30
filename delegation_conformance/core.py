@@ -20,8 +20,18 @@ def _strings(value: Any, field: str) -> set[str]:
     return set(value)
 
 
+def _check_keys(obj: Any, required: set[str], optional: set[str], name: str) -> None:
+    if not isinstance(obj, dict):
+        raise InvalidScenario(f"{name} must be an object")
+    missing = required - obj.keys()
+    unknown = obj.keys() - required - optional
+    if missing or unknown:
+        raise InvalidScenario(f"{name}: missing={sorted(missing)}, unknown={sorted(unknown)}")
+
+
 def validate(data: Any) -> None:
-    if not isinstance(data, dict) or data.get("schema_version") != "0.1":
+    _check_keys(data, {"schema_version", "scenario_id", "root_principal", "root_scope", "delegations", "request"}, {"observed_decision"}, "scenario")
+    if data.get("schema_version") != "0.1":
         raise InvalidScenario("schema_version must be 0.1")
     for field in ("scenario_id", "root_principal"):
         if not isinstance(data.get(field), str) or not data[field]:
@@ -32,8 +42,7 @@ def validate(data: Any) -> None:
         raise InvalidScenario("delegations must be a list")
     ids = set()
     for i, edge in enumerate(edges):
-        if not isinstance(edge, dict):
-            raise InvalidScenario(f"delegations[{i}] must be object")
+        _check_keys(edge, {"id", "parent", "child", "scope"}, set(), f"delegations[{i}]")
         for key in ("id", "parent", "child"):
             if not isinstance(edge.get(key), str) or not edge[key]:
                 raise InvalidScenario(f"delegations[{i}].{key} invalid")
@@ -42,8 +51,7 @@ def validate(data: Any) -> None:
         ids.add(edge["id"])
         _strings(edge.get("scope"), f"delegations[{i}].scope")
     req = data.get("request")
-    if not isinstance(req, dict):
-        raise InvalidScenario("request must be object")
+    _check_keys(req, {"principal", "permission", "delegation_path"}, set(), "request")
     for field in ("principal", "permission"):
         if not isinstance(req.get(field), str) or not req[field]:
             raise InvalidScenario(f"request.{field} invalid")
@@ -52,6 +60,8 @@ def validate(data: Any) -> None:
         raise InvalidScenario("request.delegation_path must be string list")
     if len(path) != len(set(path)):
         raise InvalidScenario("delegation_path repeats an edge")
+    if "observed_decision" in data and data["observed_decision"] not in ("allow", "deny"):
+        raise InvalidScenario("observed_decision must be allow or deny")
 
 
 def evaluate(data: Any) -> dict[str, Any]:
