@@ -1,0 +1,26 @@
+{
+  "schema_version": "0.1",
+  "scenario_id": "normal-read",
+  "root_principal": "root",
+  "root_scope": [
+    "read"
+  ],
+  "delegations": [
+    {
+      "id": "d1",
+      "parent": "root",
+      "child": "worker",
+      "scope": [
+        "read"
+      ]
+    }
+  ],
+  "request": {
+    "principal": "worker",
+    "permission": "read",
+    "delegation_path": [
+      "d1"
+    ]
+  },
+  "observed_decision": "allow"
+}
